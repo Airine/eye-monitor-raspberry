@@ -42,7 +42,7 @@ def record(queue, end_time=10.0):
             # direction = mic.get_direction(chunk)
             # pixel_ring.set_direction(direction)
             # print(int(direction))
-            print("Channel:%d, lengtchunkh:%d" % (count, len(chunk)))
+            print("Chunk length: %d" % (len(chunk)))
             chans = [list(), list(), list(), list()]
             for i in range(len(chunk)):
                 chans[i%4].append(chunk[i])
@@ -60,7 +60,7 @@ def process_record(queue):
     dir = 'data/' + str(time.strftime("%Y-%m-%d", time.localtime(time.time()))) + '/'
     while True:
         data = queue.get_nowait()
-        if !data :
+        if not data :
             time.sleep(0.005)
         chans = [np.asarray(chan) for chan in data]
         ct = time.time()
