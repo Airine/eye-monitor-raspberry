@@ -68,8 +68,14 @@ def other_test(queue):
 def process_record(queue, end_time=10.0):
     print('entering process')
     while True:
-        print('testing')
         time.sleep(0.005)
+        # print('testing')
+        print('try get data')
+        data = queue.get_nowait()
+        print('success get')
+        if not data :
+            time.sleep(0.005)
+
     # start_time = time.time()
     # dir = 'data/' + str(time.strftime("%Y-%m-%d", time.localtime(time.time()))) + '/'
     # while True:
