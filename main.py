@@ -17,7 +17,7 @@ DATA_RATE = 200
 def mic_main(client_sock):
     record_queue = Queue()
     record_p = Process(target=record, args=(record_queue,))
-    process_p = Process(target=process_record, args=(record_queue,))
+    process_p = Process(target=other_test, args=(record_queue,))
     record_p.start()
     process_p.start()
     record_p.join()
@@ -57,6 +57,12 @@ def record(queue, end_time=10.0):
             if is_quit.is_set():
                 print('start break')
                 break
+
+def other_test(queue):
+    while True:
+        print('testing')
+        time.sleep(0.005)
+
 
 def process_record(queue, end_time=10.0):
     print('entering process')
