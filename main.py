@@ -66,39 +66,39 @@ def other_test(queue):
         time.sleep(0.005)
 
 def process_record(queue, end_time=10.0):
-    print('entering process')
+    # print('entering process')
+    # while True:
+    #     time.sleep(0.005)
+    #     # print('testing')
+    #     print('try get data')
+    #     data = queue.get()
+    #     print('success get')
+    #     if not data :
+    #         time.sleep(0.005)
+
+    start_time = time.time()
+    dir = 'data/' + str(time.strftime("%Y-%m-%d", time.localtime(time.time()))) + '/'
     while True:
         time.sleep(0.005)
-        # print('testing')
+        if time.time() - start_time > end_time:
+            print('process break')
+            break
         print('try get data')
         data = queue.get()
         print('success get')
         if not data :
             time.sleep(0.005)
+        # chans = [np.asarray(chan) for chan in data]
+        # ct = time.time()
+        # local_time = time.localtime(ct)
+        # data_head = time.strftime("%H:%M:%S", local_time)
+        # data_secs = (ct - int(ct)) * 1000
+        # time_stamp = "%s-%03d" % (data_head, data_secs)
+        # for i in len(chans):
+        #     target_file = dir + '-channel{}-'.format(i) + time_stamp + '.npy'
+        #     print(target_file)
+        #     np.save(target_file, chans[i])
 
-    # start_time = time.time()
-    # dir = 'data/' + str(time.strftime("%Y-%m-%d", time.localtime(time.time()))) + '/'
-    # while True:
-    #     if time.time() - start_time > end_time:
-    #         print('process break')
-    #         break
-    #     print('try get data')
-    #     data = queue.get_nowait()
-    #     print('success get')
-    #     if not data :
-    #         time.sleep(0.005)
-    #     chans = [np.asarray(chan) for chan in data]
-    #     ct = time.time()
-    #     local_time = time.localtime(ct)
-    #     data_head = time.strftime("%H:%M:%S", local_time)
-    #     data_secs = (ct - int(ct)) * 1000
-    #     time_stamp = "%s-%03d" % (data_head, data_secs)
-    #     for i in len(chans):
-    #         target_file = dir + '-channel{}-'.format(i) + time_stamp + '.npy'
-    #         print(target_file)
-    #         np.save(target_file, chans[i])
-    #
-    #     time.sleep(0.005)
 
 
 # Bluetooth part
