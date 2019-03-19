@@ -71,7 +71,7 @@ def process_record(queue, end_time=10.0):
         time.sleep(0.005)
         # print('testing')
         print('try get data')
-        data = queue.get_nowait()
+        data = queue.get()
         print('success get')
         if not data :
             time.sleep(0.005)
