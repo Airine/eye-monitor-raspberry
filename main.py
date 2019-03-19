@@ -8,6 +8,7 @@ from mic_array import MicArray
 import numpy as np
 from multiprocessing import Process, Queue
 from bluetooth import *
+import time
 
 SAMPLE_RATE = 48000
 CHANNELS = 4
