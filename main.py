@@ -94,7 +94,7 @@ def process_record(queue, end_time=10.0):
         data_head = time.strftime("%H:%M:%S", local_time)
         data_secs = (ct - int(ct)) * 1000
         time_stamp = "%s-%03d" % (data_head, data_secs)
-        for i in len(chans):
+        for i in range(len(chans)):
             target_file = dir + '-channel{}-'.format(i) + time_stamp + '.npy'
             print(target_file)
             np.save(target_file, chans[i])
