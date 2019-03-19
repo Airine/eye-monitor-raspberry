@@ -9,6 +9,7 @@ import numpy as np
 from multiprocessing import Process, Queue
 from bluetooth import *
 import time
+import os
 
 SAMPLE_RATE = 48000
 CHANNELS = 4
@@ -96,10 +97,11 @@ def process_record(queue, end_time=10.0):
         time_stamp = "%s-%03d" % (data_head, data_secs)
         for i in range(len(chans)):
             target_file = dir + '-channel{}-'.format(i) + time_stamp + '.npy'
+            file_dir = os.path.split(target_file)[0]
+            if not os.path.isdir(file_dir):
+                os.makedirs(file_dir)
             print(target_file)
             np.save(target_file, chans[i])
-
-
 
 # Bluetooth part
 
