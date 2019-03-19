@@ -109,6 +109,8 @@ def main():
     client_sock, client_info = server_sock.accept()
     print "Accepted connection from ", client_info
 
+    mic_main(client_sock)
+
     try:
         data = client_sock.recv(1024)
         print "received [%s]" % data
