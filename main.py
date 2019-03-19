@@ -18,7 +18,10 @@ def mic_main(client_sock):
     record_queue = Queue()
     record_p = Process(target=record, args=(record_queue,))
     process_p = Process(target=process_record, args=(record_queue,))
-    pass
+    record_p.start()
+    process_p.start()
+    record_p.join()
+    process_p.terminate()
 
 def record(queue, end_time=10.0):
     import signal
@@ -56,7 +59,10 @@ def record(queue, end_time=10.0):
 def process_record(queue):
     dir = 'data/' + str(time.strftime("%Y-%m-%d", time.localtime(time.time()))) + '/'
     while True:
-        chans = [np.asarray(chan) for chan in queue.get()]
+        data = queue.get_nowait()
+        if !data :
+            time.sleep(0.005)
+        chans = [np.asarray(chan) for chan in data]
         ct = time.time()
         local_time = time.localtime(ct)
         data_head = time.strftime("%H:%M:%S", local_time)
@@ -64,6 +70,7 @@ def process_record(queue):
         time_stamp = "%s-%03d" % (data_head, data_secs)
         for i in len(chans):
             target_file = dir + '-channel{}-'.format(i) + time_stamp + '.npy'
+            print(target_file)
             np.save(target_file, chans[i])
 
         time.sleep(0.005)
