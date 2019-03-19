@@ -16,8 +16,9 @@ DATA_RATE = 200
 # MicArray part
 def mic_main(client_sock):
     record_queue = Queue()
-    record_p = Process(target=record, args=(record_queue,))
     process_p = Process(target=other_test, args=(record_queue,))
+    record_p = Process(target=record, args=(record_queue,))
+    # process_p = Process(target=other_test, args=(record_queue,))
     record_p.start()
     process_p.start()
     record_p.join()
