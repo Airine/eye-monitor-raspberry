@@ -8,7 +8,6 @@ from mic_array import MicArray
 import numpy as np
 from multiprocessing import Process, Queue
 from bluetooth import *
-import time
 
 SAMPLE_RATE = 48000
 CHANNELS = 4
@@ -22,7 +21,7 @@ def mic_main(client_sock):
     record_p.start()
     process_p.start()
     record_p.join()
-    process_p.terminate()
+    process_p.join()
 
 def record(queue, end_time=10.0):
     import signal
@@ -52,17 +51,22 @@ def record(queue, end_time=10.0):
             queue.put(chans)
             # print('------appended------')
             if time.time() - start > end_time:
-                print('start break')
+                print('record break')
                 break
 
             if is_quit.is_set():
                 print('start break')
                 break
 
-def process_record(queue):
-    dir = 'data/' + str(time.strftime("%Y-%m-%d", time.localtime(time.time()))) + '/'
+def process_record(queue, end_time=10.0):
     print('entering process')
+    import time
+    start_time = time.time()
+    dir = 'data/' + str(time.strftime("%Y-%m-%d", time.localtime(time.time()))) + '/'
     while True:
+        if time.time() - start_time > end_time:
+            print('process break')
+            break
         print('try get data')
         data = queue.get_nowait()
         print('success get')
