@@ -43,14 +43,14 @@ def record(queue, end_time=10.0):
             # direction = mic.get_direction(chunk)
             # pixel_ring.set_direction(direction)
             # print(int(direction))
-            print("Chunk length: %d" % (len(chunk)))
+            # print("Chunk length: %d" % (len(chunk)))
             chans = [list(), list(), list(), list()]
             for i in range(len(chunk)):
                 chans[i%4].append(chunk[i])
             # print(chunk)
             # print(type(chunk))
             queue.put(chans)
-            print('------appended------')
+            # print('------appended------')
             if time.time() - start > end_time:
                 print('record break')
                 break
