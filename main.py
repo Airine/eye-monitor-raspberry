@@ -80,15 +80,14 @@ def process_record(queue, end_time=10.0):
     start_time = time.time()
     dir = 'data/' + str(time.strftime("%Y-%m-%d", time.localtime(time.time()))) + '/'
     while True:
-        time.sleep(0.005)
-        if time.time() - start_time > end_time:
-            print('process break')
-            break
         print('try get data')
         data = queue.get()
         print('success get')
         if not data :
             time.sleep(0.005)
+        if time.time() - start_time > end_time:
+            print('process break')
+            break
         chans = [np.asarray(chan) for chan in data]
         ct = time.time()
         local_time = time.localtime(ct)
