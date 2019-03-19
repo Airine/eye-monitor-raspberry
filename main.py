@@ -101,7 +101,7 @@ def main():
             if len(data) == 0: break
             print "received [%s]" % data
 
-            if data = 'record':
+            if data == 'record':
                 client_sock.send('Start recording'))
                 mic_main(client_sock)
                 pass
