@@ -51,9 +51,11 @@ def record(queue, end_time=10.0):
             queue.put(chans)
             print('------appended------')
             if time.time() - start > end_time:
+                print('start break')
                 break
 
             if is_quit.is_set():
+                print('start break')
                 break
 
 def process_record(queue):
