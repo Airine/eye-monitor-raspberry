@@ -8,6 +8,7 @@ from mic_array import MicArray
 import numpy as np
 from multiprocessing import Process, Queue
 from bluetooth import *
+import time
 
 SAMPLE_RATE = 48000
 CHANNELS = 4
@@ -26,7 +27,6 @@ def mic_main(client_sock):
 
 def record(queue, end_time=10.0):
     import signal
-    import time
     # from pixel_ring import pixel_ring
 
     is_quit = threading.Event()
