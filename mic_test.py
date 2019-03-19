@@ -69,6 +69,7 @@ def main():
         plt.grid()
         plt.show()
         plt.savefig('channel-{}.png'.format(i), format='png')
+        plt.close()
         i += 1
         # for i in c:
             # file.write(i)
