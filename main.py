@@ -102,7 +102,7 @@ def main():
             print "received [%s]" % data
 
             if data == 'record':
-                client_sock.send('Start recording'))
+                client_sock.send('Start recording')
                 mic_main(client_sock)
                 pass
 
