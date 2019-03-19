@@ -68,7 +68,7 @@ def main():
         plt.plot(xf, 2.0/N * np.abs(yf[0:N//2]))
         plt.grid()
         plt.show()
-        plt.savefig('plot{}'.format(i), format='png')
+        plt.savefig('channel-{}.png'.format(i), format='png')
         i += 1
         # for i in c:
             # file.write(i)
