@@ -10,6 +10,9 @@ from multiprocessing import Process, Queue
 from bluetooth import *
 import time
 import os
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 
 SAMPLE_RATE = 48000
 CHANNELS = 4
@@ -66,9 +69,18 @@ def other_test(queue):
         print('testing')
         time.sleep(0.005)
 
+def get_time_stamp():
+    ct = time.time()
+    local_time = time.localtime(ct)
+    data_head = time.strftime("%H:%M:%S", local_time)
+    data_secs = (ct - int(ct)) * 1000
+    return "%s-%03d" % (data_head, data_secs)
+
 def process_record(queue, end_time=10.0):
     start_time = time.time()
     dir = 'data/' + str(time.strftime("%Y-%m-%d", time.localtime(time.time()))) + '/'
+    plt.figure(figsize=(8, 6), dpi=80)
+    plt.ion()
     while True:
         print('try get data')
         data = queue.get()
@@ -79,18 +91,27 @@ def process_record(queue, end_time=10.0):
             print('process break')
             break
         chans = [np.asarray(chan) for chan in data]
-        ct = time.time()
-        local_time = time.localtime(ct)
-        data_head = time.strftime("%H:%M:%S", local_time)
-        data_secs = (ct - int(ct)) * 1000
-        time_stamp = "%s-%03d" % (data_head, data_secs)
+
+        N = len(chans[0])
+        T = 1.0/N
+        x = np.linspace(0.0, N*T, N)
+        plt.cla()
+        plt.grid(True)
         for i in range(len(chans)):
-            target_file = dir + '-channel{}-'.format(i) + time_stamp + '.npy'
-            file_dir = os.path.split(target_file)[0]
-            if not os.path.isdir(file_dir):
-                os.makedirs(file_dir)
-            print(target_file)
-            np.save(target_file, chans[i])
+            yf = fft(chans[i])
+            xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
+            plt.subplot(2, 2, i)
+            plt.plot(xf, 2.0/N * np.abs(yf[0:N//2]))
+    plt.ioff()
+    plt.show()
+
+        # for i in range(len(chans)):
+        #     target_file = dir + '-channel{}-'.format(i) + time_stamp + '.npy'
+        #     file_dir = os.path.split(target_file)[0]
+        #     if not os.path.isdir(file_dir):
+        #         os.makedirs(file_dir)
+        #     print(target_file)
+        #     np.save(target_file, chans[i])
 
 # Bluetooth part
 
