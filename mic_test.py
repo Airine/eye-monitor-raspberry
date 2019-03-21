@@ -13,7 +13,7 @@ plt.switch_backend("agg")
 # import pylab as pl
 
 SAMPLE_RATE = 48000
-CHANNELS = 4
+CHANNELS = 8
 
 def main():
     import signal
@@ -48,11 +48,11 @@ def main():
             if is_quit.is_set():
                 break
 
-    chans = [list(), list(), list(), list()]
+    chans = [list(), list(), list(), list(),list(), list(), list(), list()]
     start = 0
     for c in chunks:
         for i in range(len(c)):
-            channel = i % 4
+            channel = i % 8
             chans[channel].append(c[i])
 
     pro_chans = [np.asarray(chan) for chan in chans]
