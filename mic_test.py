@@ -8,6 +8,10 @@ from mic_array import MicArray
 import numpy as np
 from scipy.fftpack import fft
 import matplotlib.pyplot as plt
+from multiprocessing import Process, Queue
+import os
+import time
+import signal
 plt.switch_backend("agg")
 
 # import pylab as pl
@@ -15,9 +19,12 @@ plt.switch_backend("agg")
 SAMPLE_RATE = 48000
 CHANNELS = 8
 
+def play(audio_name):
+    print('Playing')
+    os.system('mplayer %s' % audio_name)
+
 def main():
-    import signal
-    import time
+
     # from pixel_ring import pixel_ring
 
     is_quit = threading.Event()
@@ -29,6 +36,10 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     start = time.time()
     count = 1
+    print('------')
+    print('play 22k audio')
+    play_process = Process(target=play, args=('sig22k_210.wav'))
+    play_process.start()
     print('------')
     chunks = list()
     with MicArray(SAMPLE_RATE, CHANNELS, SAMPLE_RATE / CHANNELS)  as mic:
@@ -47,6 +58,8 @@ def main():
 
             if is_quit.is_set():
                 break
+    play_process.terminate()
+    play_process.join()
 
     chans = [list(), list(), list(), list(),list(), list(), list(), list()]
     start = 0
