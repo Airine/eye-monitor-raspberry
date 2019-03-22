@@ -55,6 +55,8 @@ class SocketHandler(Thread):
             # TODO: play and record
             print "Received training command"
             pass
+        else:
+            print(cmd[:-1])
 
 # ----------------- End of SocketHandler -----------------------
 if __name__ == '__main__':

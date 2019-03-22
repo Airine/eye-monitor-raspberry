@@ -98,7 +98,7 @@ def scatter_plot(x, y, frequency=200, ready_time=5.0, func=None):
             scale = 100
 
         # 画散点图
-        plt.scatter(x[index], y[index], s=scale marker="o")
+        plt.scatter(x[index], y[index], s=scale, marker="o")
 
         # 暂停
         plt.pause(1/frequency)
