@@ -92,10 +92,21 @@ def plot_signal(pro_chans, head=False):
         plt.close()
         i += 1
 
+def save_to_npy(pro_chans):
+    dir = 'data/ddl/'
+    for i in range(len(pro_chans)):
+        target_file = dir + 'channel{}'.format(i)+'.npy'
+        file_dir = os.path.split(target_file)[0]
+        if not os.path.isdir(file_dir):
+            os.makedirs(file_dir)
+        print(target_file)
+        np.save(target_file, pro_chans[i])
+
 if __name__ == '__main__':
     chunks = get_chunks()
     pro_chans = preprocess(chunks, channels=8)
     N = 48000
     T = 1.0 / 48000
-    # plot_signal(pro_chans, head=True)
+    save_to_npy(pro_chans)
+    plot_signal(pro_chans, head=True)
     plot_fft(N, T, pro_chans)
