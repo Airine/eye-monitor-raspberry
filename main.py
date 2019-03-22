@@ -13,15 +13,16 @@ import os
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
+from scipy.fftpack import fft
+
 
 SAMPLE_RATE = 48000
-CHANNELS = 4
+CHANNELS = 8
 DATA_RATE = 200
 
 # MicArray part
 def mic_main(client_sock):
     record_queue = Queue()
-    # process_p = Process(target=other_test, args=(record_queue,))
     record_p = Process(target=record, args=(record_queue,))
     process_p = Process(target=process_record, args=(record_queue,))
     process_p.start()
@@ -30,7 +31,7 @@ def mic_main(client_sock):
     record_p.join()
     process_p.join()
 
-def record(queue, end_time=10.0):
+def record(queue, end_time=1.0):
     import signal
     # from pixel_ring import pixel_ring
 
@@ -45,17 +46,12 @@ def record(queue, end_time=10.0):
     print('------')
     with MicArray(SAMPLE_RATE, CHANNELS,  CHANNELS * SAMPLE_RATE / DATA_RATE)  as mic:
         for chunk in mic.read_chunks():
-            # direction = mic.get_direction(chunk)
-            # pixel_ring.set_direction(direction)
-            # print(int(direction))
-            # print("Chunk length: %d" % (len(chunk)))
             chans = [list(), list(), list(), list()]
             for i in range(len(chunk)):
-                chans[i%4].append(chunk[i])
-            # print(chunk)
-            # print(type(chunk))
+                index = i % CHANNELS
+                if index < 4:
+                    chans[index].append(chunk[i])
             queue.put(chans)
-            # print('------appended------')
             if time.time() - start > end_time:
                 print('record break')
                 break
@@ -97,6 +93,8 @@ def process_record(queue, end_time=10.0):
         x = np.linspace(0.0, N*T, N)
         plt.cla()
         plt.grid(True)
+        print(len(chans))
+        print(chans)
         for i in range(len(chans)):
             yf = fft(chans[i])
             xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
