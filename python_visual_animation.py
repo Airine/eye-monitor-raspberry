@@ -9,6 +9,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from mpl_toolkits.mplot3d import Axes3D
+import time
 
 # 解决中文乱码问题
 # myfont = fm.FontProperties(fname="/Library/Fonts/Songti.ttc", size=14)
@@ -67,14 +68,17 @@ def simple_plot():
 # simple_plot()
 
 
-def scatter_plot(x, y):
+def scatter_plot(x, y, frequency=200, ready_time=5.0, func=None):
     """
     scatter plot
     """
     # 打开交互模式
+    plt.figure(figsize=(30, 30))
     plt.ion()
     assert len(x) == len(y)
     # 循环
+    start_time = time.time()
+
     for index in range(len(x)):
         # 清除原有图像
         plt.cla()
@@ -87,17 +91,17 @@ def scatter_plot(x, y):
 
         # 生成测试数据
         point_count = 1
-        
-        # 设置相关参数
-        color_list = np.random.random(point_count)
-        scale_list = [5]
-        # if index <
+
+        scale = 5
+
+        if time.time()-start_time < ready_time:
+            scale = 100
 
         # 画散点图
-        plt.scatter(x[index], y[index], s=scale_list, c=color_list, marker="o")
+        plt.scatter(x[index], y[index], s=scale marker="o")
 
         # 暂停
-        plt.pause(0.000001)
+        plt.pause(1/frequency)
 
     # 关闭交互模式
     plt.ioff()

@@ -1,8 +1,9 @@
 from threading import Thread
 import socket, time
+from python_visual_animation import scatter_plot
 
 VERBOSE = False
-IP_ADDRESS = "192.168.0.17"
+IP_ADDRESS = "10.20.43.94"
 IP_PORT = 22000
 
 def debug(text):
@@ -73,17 +74,55 @@ def connect():
     startReceiver()
     return True
 
-sock = None
-isConnected = False
+# ------------------------ End of TCP functions ---------------------
 
-if connect():
-    isConnected = True
-    print "Connection established"
-    time.sleep(1)
-    while isConnected:
-        print "Sending command: go..."
-        sendCommand("go")
-        time.sleep(2)
-else:
-    print "Connection to %s:%d failed" % (IP_ADDRESS, IP_PORT)
-print "done"
+def training_main():
+    ready_one = 6*np.ones(100)
+    ready_zero= 6*np.ones(100)
+    x_ready = np.concatenate((ready_one, ready_zero, ready_one, ready_zero,
+                        ready_one, ready_zero, ready_one, ready_zero,
+                        ready_one, ready_zero))
+    y_ready = np.concatenate((ready_one, ready_zero, ready_one, ready_zero,
+                        ready_one, ready_zero, ready_one, ready_zero,
+                        ready_one, ready_zero))
+
+    x_hori = np.linspace(2, 10, 800)
+    x_hore = np.linspace(10, 2, 800)
+    x_2 = 2*np.ones(100)
+    x_10= 10*np.ones(100)
+
+    y_down = list()
+    y_hori = list()
+    for i in [10, 8, 6, 4]:
+        y_down.append(np.linspace(i, i-2, 100))
+        y_hori.append(i*np.ones(800))
+    y_hori.append(2*np.ones(800))
+    x = np.concatenate((x_ready, x_hori, x_10, x_hore, x_2,
+                        x_hori, x_10, x_hore, x_2,
+                        x_hori))
+    y = np.concatenate((y_ready, y_hori[0], y_down[0], y_hori[1], y_down[1],
+                        y_hori[2], y_down[2], y_hori[3], y_down[3],
+                        y_hori[4]))
+    scatter_plot(x,y)
+
+if __name__ == '__main__':
+    sock = None
+    isConnected = False
+
+    if connect():
+        isConnected = True
+        print "Connection established"
+        time.sleep(1)
+        while isConnected:
+            # print "Sending command: go..."
+            # sendCommand("go")
+            command = input("Please enter a command:")
+            if command == "training":
+                training_main()
+                pass
+            else:
+                sendCommand(command)
+            time.sleep(2)
+    else:
+        print "Connection to %s:%d failed" % (IP_ADDRESS, IP_PORT)
+    print "done"
