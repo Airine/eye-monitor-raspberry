@@ -77,34 +77,31 @@ def connect():
 
 # ------------------------ End of TCP functions ---------------------
 
-def training_main():
-    ready_one = 6*np.ones(100)
-    ready_zero= 6*np.ones(100)
-    x_ready = np.concatenate((ready_one, ready_zero, ready_one, ready_zero,
-                        ready_one, ready_zero, ready_one, ready_zero,
-                        ready_one, ready_zero))
-    y_ready = np.concatenate((ready_one, ready_zero, ready_one, ready_zero,
-                        ready_one, ready_zero, ready_one, ready_zero,
-                        ready_one, ready_zero))
+def training_plot():
+    ready = 6*np.ones(50, dtype=np.float32)
 
-    x_hori = np.linspace(2, 10, 800)
-    x_hore = np.linspace(10, 2, 800)
-    x_2 = 2*np.ones(100)
-    x_10= 10*np.ones(100)
+    x_hori = np.linspace(2, 10, 200,dtype=np.float32)
+    x_hore = np.linspace(10, 2, 200,dtype=np.float32)
+    x_2 = 2*np.ones(50,dtype=np.float32)
+    x_10= 10*np.ones(50,dtype=np.float32)
 
     y_down = list()
     y_hori = list()
     for i in [10, 8, 6, 4]:
-        y_down.append(np.linspace(i, i-2, 100))
-        y_hori.append(i*np.ones(800))
-    y_hori.append(2*np.ones(800))
-    x = np.concatenate((x_ready, x_hori, x_10, x_hore, x_2,
+        y_down.append(np.linspace(i, i-2, 50,dtype=np.float32))
+        y_hori.append(i*np.ones(200,dtype=np.float32))
+    y_hori.append(2*np.ones(200,dtype=np.float32))
+    x = np.concatenate((ready, x_hori, x_10, x_hore, x_2,
                         x_hori, x_10, x_hore, x_2,
                         x_hori))
-    y = np.concatenate((y_ready, y_hori[0], y_down[0], y_hori[1], y_down[1],
+    y = np.concatenate((ready, y_hori[0], y_down[0], y_hori[1], y_down[1],
                         y_hori[2], y_down[2], y_hori[3], y_down[3],
                         y_hori[4]))
-    scatter_plot(x,y)
+    return x, y
+
+def training_main():
+    x, y = training_plot()
+    scatter_plot(x, y, sendCommand)
 
 if __name__ == '__main__':
     sock = None

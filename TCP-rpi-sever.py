@@ -51,12 +51,16 @@ class SocketHandler(Thread):
                 state = "Button released"
             print "Reporting current state:", state
             self.conn.sendall(state + "\0")
-        if cmd[:-1] == "training":
+        elif cmd[:-1] == "training":
             # TODO: play and record
-            print "Received training command"
-            pass
+            print("Received training command")
+            self.conn.sendall("Received training command" + "\0")
+        elif cmd[:-1] == "start":
+
         else:
             print(cmd[:-1])
+            self.conn.sendall(cmd[:-1] + "\0")
+
 
 # ----------------- End of SocketHandler -----------------------
 if __name__ == '__main__':

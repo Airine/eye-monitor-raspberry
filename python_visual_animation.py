@@ -6,6 +6,7 @@ python_visual_animation.py by xianhu
 
 import numpy as np
 import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from mpl_toolkits.mplot3d import Axes3D
@@ -27,7 +28,7 @@ def simple_plot():
     plt.ion()
 
     # 循环
-    for index in range(100):
+    for index in range(200):
         # 清除原有图像
         plt.cla()
 
@@ -57,7 +58,7 @@ def simple_plot():
         plt.legend(loc="upper left", shadow=True)
 
         # 暂停
-        plt.pause(0.05)
+        plt.pause(0.005)
 
     # 关闭交互模式
     plt.ioff()
@@ -68,17 +69,24 @@ def simple_plot():
 # simple_plot()
 
 
-def scatter_plot(x, y, frequency=200, ready_time=5.0, func=None):
+def scatter_plot(x, y, func=None):
     """
     scatter plot
     """
-    # 打开交互模式
-    plt.figure(figsize=(30, 30))
+    # 打开交互模式    plt.figure(figsize=(8, 6), dpi=80)
+
+    plt.figure(figsize=(9, 9),  dpi=90)
+    mngr = plt.get_current_fig_manager()
+    mngr.window.wm_geometry("+340+70")
     plt.ion()
+    plt.ioff()
+
     assert len(x) == len(y)
     # 循环
     start_time = time.time()
 
+    flag = -1
+    start_time = time.time()
     for index in range(len(x)):
         # 清除原有图像
         plt.cla()
@@ -86,25 +94,32 @@ def scatter_plot(x, y, frequency=200, ready_time=5.0, func=None):
         # 设定标题等
         plt.title("Dynamic test")
         plt.grid(True)
-        plt.xlim((0, 12))
-        plt.ylim((0, 12))
+        plt.xlim(0, 12)
+        plt.ylim(0, 12)
+        scale = 30
 
-        # 生成测试数据
-        point_count = 1
-
-        scale = 5
-
-        if time.time()-start_time < ready_time:
-            scale = 100
+        x_ = x[index]*np.ones(1)
+        y_ = y[index]*np.ones(1)
+        if index < 50:
+            if index % 10 == 0:
+                flag = -flag
+            scale = 500
+            x[index] = flag*x[index]
+            y[index] = flag*y[index]
+        if index == 50:
+            ready_time = time.time() - start_time
+            print(ready_time)
+            func("start")
+            # sendCommand("start")
 
         # 画散点图
-        plt.scatter(x[index], y[index], s=scale, marker="o")
+        plt.scatter(x[index], y[index], s=scale)
 
         # 暂停
-        plt.pause(1/frequency)
+        plt.pause(0.005)
 
     # 关闭交互模式
-    plt.ioff()
+    # plt.ioff()
 
     # 显示图形
     plt.show()
@@ -128,15 +143,15 @@ def three_dimension_scatter():
         fig.clf()
 
         # 设定标题等
-        fig.suptitle("Dynamic test", fontproperties=myfont)
+        fig.suptitle("Dynamic test")
 
         # 生成测试数据
-        point_count = 100
+        point_count = 200
         x = np.random.random(point_count)
         y = np.random.random(point_count)
         z = np.random.random(point_count)
         color = np.random.random(point_count)
-        scale = np.random.random(point_count) * 100
+        scale = np.random.random(point_count) * 200
 
         # 生成画布
         ax = fig.add_subplot(111, projection="3d")
@@ -155,7 +170,7 @@ def three_dimension_scatter():
         ax.set_zlim(0, 1)
 
         # 暂停
-        plt.pause(0.2)
+        plt.pause(0.01)
 
     # 关闭交互模式
     plt.ioff()
@@ -166,7 +181,24 @@ def three_dimension_scatter():
 # three_dimension_scatter()
 
 if __name__ == '__main__':
-    # simple_plot()
-    x = np.linspace(2,10,300)
-    y = np.linspace(2,10,300)
-    scatter_plot(x, y)
+    ready = 6*np.ones(50, dtype=np.float32)
+
+    x_hori = np.linspace(2, 10, 200,dtype=np.float32)
+    x_hore = np.linspace(10, 2, 200,dtype=np.float32)
+    x_2 = 2*np.ones(50,dtype=np.float32)
+    x_10= 10*np.ones(50,dtype=np.float32)
+
+    y_down = list()
+    y_hori = list()
+    for i in [10, 8, 6, 4]:
+        y_down.append(np.linspace(i, i-2, 50,dtype=np.float32))
+        y_hori.append(i*np.ones(200,dtype=np.float32))
+    y_hori.append(2*np.ones(200,dtype=np.float32))
+    x = np.concatenate((ready, x_hori, x_10, x_hore, x_2,
+                        x_hori, x_10, x_hore, x_2,
+                        x_hori))
+    y = np.concatenate((ready, y_hori[0], y_down[0], y_hori[1], y_down[1],
+                        y_hori[2], y_down[2], y_hori[3], y_down[3],
+                        y_hori[4]))
+
+    scatter_plot(x,y,print)

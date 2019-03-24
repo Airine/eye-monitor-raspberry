@@ -1,4 +1,9 @@
-def pre_process():
+from scipy import signal
+from scipy import fftpack
+import numpy as np
+import math
+
+def pre_process(pro_chans):
     fs = 48000
     N = 0.005*fs
     n = range(N)
