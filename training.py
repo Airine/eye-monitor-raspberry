@@ -12,7 +12,7 @@ from bluetooth import *
 import time
 import os
 import pygame
-    
+
 record_queue = Queue()
 
 
@@ -25,13 +25,15 @@ PLAY_TIME = 5 # seconds
 # MicArray part
 def mic_main(client_sock):
     record_queue = Queue()
-    play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME))
-    save_p = Process(target=save, args=(record_queue, PLAY_TIME))
-    peer_processes = [play_p, save_p]
-    record_p = Process(target=record, args=(record_queue, PLAY_TIME, peer_processes))
-    # play_p.start()
+    play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME,))
+    save_p = Process(target=save, args=(record_queue, PLAY_TIME,))
+    record_p = Process(target=record, args=(record_queue, PLAY_TIME,))
     record_p.start()
-    # save_p.start()
+    while True:
+        if record_queue.get() == 'start':
+            break
+    play_p.start()
+    save_p.start()
     save_p.join()
     record_p.join()
     play_p.join()
@@ -62,8 +64,7 @@ def record(queue, end_time, peers):
     print('------')
     with MicArray(SAMPLE_RATE, CHANNELS,  CHANNELS * SAMPLE_RATE / DATA_RATE)  as mic:
         print('------')
-        for process in peers:
-            process.start()
+        queue.put('start')
         for chunk in mic.read_chunks():
             chans = [list(), list(), list(), list()]
             for i in range(len(chunk)):
@@ -165,4 +166,3 @@ if __name__ == '__main__':
     # main()
     mic_main(None)
     # record(record_queue, PLAY_TIME)
-    
