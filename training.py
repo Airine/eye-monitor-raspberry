@@ -25,7 +25,7 @@ def mic_main(client_sock):
     record_queue = Queue()
     record_p = Process(target=record, args=(record_queue, PLAY_TIME))
     play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME))
-    save_p = Process(target=save, args=(record_queue))
+    save_p = Process(target=save, args=(record_queue,))
     play_p.start()
     record_p.start()
     save_p.start()
@@ -78,6 +78,8 @@ def save(queue):
     record_data = pd.DataFrame(columns=['MIC1','MIC2','MIC3','MIC4'])
     while True:
         chans = queue.get()
+        if not chans:
+            time.sleep(0.5)
         if chans == 'DONE':
             break
         pd.concat(record_data, [pd.DataFrame([chans[0][i], chans[1][i], chans[2][i], chans[3][i]], columns=['MIC1','MIC2','MIC3','MIC4']) for i in len(chans[0])], ignore_index=True)
