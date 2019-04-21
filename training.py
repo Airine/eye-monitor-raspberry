@@ -6,32 +6,45 @@ from gcc_phat import gcc_phat
 import math
 from mic_array import MicArray
 import numpy as np
+import pandas as pd
 from multiprocessing import Process, Queue
 from bluetooth import *
 import time
 import os
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
-from scipy.fftpack import fft
+import pygame
 
 
 SAMPLE_RATE = 48000
 CHANNELS = 8
 DATA_RATE = 200
+AUDIO_NAME = 'raw_data/sig1822k_210duo_pi.wav'
+PLAY_TIME = 20 # seconds
 
 # MicArray part
 def mic_main(client_sock):
     record_queue = Queue()
-    record_p = Process(target=record, args=(record_queue,))
-    process_p = Process(target=process_record, args=(record_queue,))
-    process_p.start()
+    record_p = Process(target=record, args=(record_queue, PLAY_TIME))
+    play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME))
+    save_p = Process(target=save, args=(record_queue))
+    play_p.start()
     record_p.start()
-    # process_p.start()
+    save_p.start()
+    save_p.join()
     record_p.join()
-    process_p.join()
+    play_p.join()
 
-def record(queue, end_time=1.0):
+def play(audio, end_time=20.0):
+    pygame.mixer.init()
+    pygame.mixer.music.load(audio)
+    pygame.mixer.music.play()
+    start = time.time()
+    while pygame.mixer.music.get_busy() == True:
+        if time.time() - start > end_time:
+            print('record break')
+            break
+        continue
+
+def record(queue, end_time=20.0):
     import signal
     # from pixel_ring import pixel_ring
 
@@ -59,11 +72,18 @@ def record(queue, end_time=1.0):
             if is_quit.is_set():
                 print('start break')
                 break
+    queue.put('DONE')
 
-def other_test(queue):
+def save(queue):
+    record_data = pd.DataFrame(columns=['MIC1','MIC2','MIC3','MIC4'])
     while True:
-        print('testing')
-        time.sleep(0.005)
+        chans = queue.get()
+        if chans == 'DONE':
+            break
+        pd.concat(record_data, [pd.DataFrame([chans[0][i], chans[1][i], chans[2][i], chans[3][i]], columns=['MIC1','MIC2','MIC3','MIC4']) for i in len(chans[0])], ignore_index=True)
+    time_stamp = get_time_stamp()
+    output_file = 'record_'+time_stamp
+    record_data.to_csv(output_file)
 
 def get_time_stamp():
     ct = time.time()
@@ -72,44 +92,6 @@ def get_time_stamp():
     data_secs = (ct - int(ct)) * 1000
     return "%s-%03d" % (data_head, data_secs)
 
-def process_record(queue, end_time=10.0):
-    start_time = time.time()
-    dir = 'data/' + str(time.strftime("%Y-%m-%d", time.localtime(time.time()))) + '/'
-    plt.figure(figsize=(8, 6), dpi=80)
-    plt.ion()
-    while True:
-        print('try get data')
-        data = queue.get()
-        print('success get')
-        if not data :
-            time.sleep(0.002)
-        if time.time() - start_time > end_time:
-            print('process break')
-            break
-        chans = [np.asarray(chan) for chan in data]
-
-        N = len(chans[0])
-        T = 1.0/N
-        x = np.linspace(0.0, N*T, N)
-        plt.cla()
-        plt.grid(True)
-        print(len(chans))
-        print(chans)
-        for i in range(len(chans)):
-            yf = fft(chans[i])
-            xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
-            plt.subplot(2, 2, i)
-            plt.plot(xf, 2.0/N * np.abs(yf[0:N//2]))
-    plt.ioff()
-    plt.show()
-
-        # for i in range(len(chans)):
-        #     target_file = dir + '-channel{}-'.format(i) + time_stamp + '.npy'
-        #     file_dir = os.path.split(target_file)[0]
-        #     if not os.path.isdir(file_dir):
-        #         os.makedirs(file_dir)
-        #     print(target_file)
-        #     np.save(target_file, chans[i])
 
 # Bluetooth part
 
