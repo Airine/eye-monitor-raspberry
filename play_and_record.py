@@ -2,6 +2,8 @@ from multiprocessing import Process, Queue
 import subprocess
 import time
 import argparse
+import wave
+import contextlib
 
 AUDIO_NAME = 'raw_data/sig1822k_5s.wav'
 RECORD_NAME= ''
@@ -35,30 +37,25 @@ def main():
     parser = argparse.ArgumentParser(description='play a audio and record in the same time')
     # parser.add_argument('-h', '--help', )
     # group = parser.add_mutually_exclusive_group()
-    parser.add_argument('-t', '--test', help='test with 5 seconds wav',
-                        action='store_true')
+    # parser.add_argument('-t', '--test', help='test with 5 seconds wav',
+    #                     action='store_true')
     parser.add_argument('-d', '--duration', help='specify the play and record duration')
     parser.add_argument('play_audio', type=str, default='raw_data/sig1822k_5s.wav', help='the file name of the audio needed to play.')
     parser.add_argument('record_file', type=str, default='record/test.wav', help='the file path of your record')
     args = parser.parse_args()
-
+    
     AUDIO_NAME = args.play_audio
     RECORD_NAME= args.record_file
 
-    if args.t:
-        print('testing')
-        RECORD_NAME = get_time_stamp() + '-record.wav'
-        AUDIO_NAME = 'raw_data/sig1822k_5s.wav'
-
-    PLAY_TIME = get_wave_duration(AUDIO_NAME)
-
-    if args.d:
-        print('set duration')
-        if args.d < PLAY_TIME
-            PLAY_TIME = args.d
-            print('set success')
-        else:
-            print('set failed')
+    PLAY_TIME = int(get_wave_duration(AUDIO_NAME))
+    # TODO
+    # if args.d:
+    #    print('set duration')
+    #     if args.d < PLAY_TIME:
+    #         PLAY_TIME = args.d
+    #         print('set success')
+    #     else:
+    #         print('set failed')
 
     play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME,))
     record_p = Process(target=record, args=(RECORD_NAME, PLAY_TIME,))
