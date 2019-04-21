@@ -83,7 +83,7 @@ def save(queue):
         pd.concat(record_data, [pd.DataFrame([chans[0][i], chans[1][i], chans[2][i], chans[3][i]], columns=['MIC1','MIC2','MIC3','MIC4']) for i in len(chans[0])], ignore_index=True)
     time_stamp = get_time_stamp()
     output_file = 'record_'+time_stamp
-    record_data.to_csv(output_file)
+    record_data.to_csv(output_file, index=False)
 
 def get_time_stamp():
     ct = time.time()
