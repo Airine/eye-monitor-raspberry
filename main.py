@@ -19,17 +19,32 @@ from scipy.fftpack import fft
 SAMPLE_RATE = 48000
 CHANNELS = 8
 DATA_RATE = 200
+AUDIO_NAME = 'raw_data/sig1822k_5s.wav'
+PLAY_TIME = 5 # seconds
 
 # MicArray part
 def mic_main(client_sock):
     record_queue = Queue()
-    record_p = Process(target=record, args=(record_queue,))
-    process_p = Process(target=process_record, args=(record_queue,))
+    record_p = Process(target=record, args=(record_queue, PLAY_TIME))
+    process_p = Process(target=process_record, args=(record_queue, PLAY_TIME))
+    play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME))
+    play_p.start()
     process_p.start()
     record_p.start()
-    # process_p.start()
+    play_p.join()
     record_p.join()
     process_p.join()
+
+def play(audio, end_time=20.0):
+    pygame.mixer.init()
+    pygame.mixer.music.load(audio)
+    pygame.mixer.music.play()
+    start = time.time()
+    while pygame.mixer.music.get_busy() == True:
+        if time.time() - start > end_time:
+            print('record break')
+            break
+        continue
 
 def record(queue, end_time=1.0):
     import signal
