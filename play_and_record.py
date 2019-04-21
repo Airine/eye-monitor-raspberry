@@ -1,21 +1,21 @@
-# import pyaudio
-import pygame
 from multiprocessing import Process, Queue
-from mic_array import MicArray
 import subprocess
 import time
+import argparse
 
 SAMPLE_RATE = 48000
 CHANNELS = 8
 AUDIO_NAME = 'raw_data/sig1822k_5s.wav'
 PLAY_TIME = 5 # seconds
 
+# process_queue = Queue()
+# TODO: adding 
 def play(audio, end_time=20.0):
     proc = subprocess.Popen(['aplay', '-d', str(end_time), audio])
     print(proc.pid)
 
 def record(file_name, end_time=20.0):
-    proc = subprocess.call(['arecord', '-Dac108', '-f', 'S16_LE', '-r', '48000', '-c', '4', '-d', str(end_time), file_name])
+    proc = subprocess.Popen(['arecord', '-Dac108', '-f', 'S16_LE', '-r', '48000', '-c', '4', '-d', str(end_time), file_name])
     print(proc.pid)
 
 def get_time_stamp():
@@ -26,6 +26,8 @@ def get_time_stamp():
     return "%s-%03d" % (data_head, data_secs)
 
 def main():
+    parser = argparse.ArgumentParser()
+    # parser.add_argument
     file_name = get_time_stamp() + '-record.wav'
     play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME,))
     record_p = Process(target=record, args=(file_name, PLAY_TIME,))
