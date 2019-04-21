@@ -83,7 +83,9 @@ def save(queue):
         if chans == 'DONE':
             break
         for i in range(len(chans[0])):
-            pd.concat(record_data, pd.DataFrame([chans[0][i], chans[1][i], chans[2][i], chans[3][i]], columns=['MIC1','MIC2','MIC3','MIC4']), ignore_index=True)
+            tempt = pd.DataFrame([[chans[0][i], chans[1][i], chans[2][i], chans[3][i]],], columns=['MIC1','MIC2','MIC3','MIC4'])
+            print(tempt)
+            record_data = pd.concat([record_data, tempt], ignore_index=True)
     time_stamp = get_time_stamp()
     output_file = 'record_'+time_stamp
     record_data.to_csv(output_file, index=False)
