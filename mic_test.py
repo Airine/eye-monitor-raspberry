@@ -15,7 +15,7 @@ import signal
 plt.switch_backend("agg")
 
 SAMPLE_RATE = 48000
-CHANNELS = 4
+CHANNELS = 8
 
 # Get record chunks in `time_range` seconds.
 def get_chunks(time_range=1.0):
