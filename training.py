@@ -12,23 +12,26 @@ from bluetooth import *
 import time
 import os
 import pygame
+    
+record_queue = Queue()
 
 
 SAMPLE_RATE = 48000
 CHANNELS = 8
-DATA_RATE = 200
+DATA_RATE = 1
 AUDIO_NAME = 'raw_data/sig1822k_210duo_pi.wav'
-PLAY_TIME = 20 # seconds
+PLAY_TIME = 5 # seconds
 
 # MicArray part
 def mic_main(client_sock):
     record_queue = Queue()
-    record_p = Process(target=record, args=(record_queue, PLAY_TIME))
     play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME))
-    save_p = Process(target=save, args=(record_queue,))
-    play_p.start()
+    save_p = Process(target=save, args=(record_queue, PLAY_TIME))
+    peer_processes = [play_p, save_p]
+    record_p = Process(target=record, args=(record_queue, PLAY_TIME, peer_processes))
+    # play_p.start()
     record_p.start()
-    save_p.start()
+    # save_p.start()
     save_p.join()
     record_p.join()
     play_p.join()
@@ -40,11 +43,11 @@ def play(audio, end_time=20.0):
     start = time.time()
     while pygame.mixer.music.get_busy() == True:
         if time.time() - start > end_time:
-            print('record break')
+            print('play break')
             break
         continue
 
-def record(queue, end_time=20.0):
+def record(queue, end_time, peers):
     import signal
     # from pixel_ring import pixel_ring
 
@@ -58,6 +61,9 @@ def record(queue, end_time=20.0):
     start = time.time()
     print('------')
     with MicArray(SAMPLE_RATE, CHANNELS,  CHANNELS * SAMPLE_RATE / DATA_RATE)  as mic:
+        print('------')
+        for process in peers:
+            process.start()
         for chunk in mic.read_chunks():
             chans = [list(), list(), list(), list()]
             for i in range(len(chunk)):
@@ -65,6 +71,7 @@ def record(queue, end_time=20.0):
                 if index < 4:
                     chans[index].append(chunk[i])
             queue.put(chans)
+            print('recording')
             if time.time() - start > end_time:
                 print('record break')
                 break
@@ -72,23 +79,30 @@ def record(queue, end_time=20.0):
             if is_quit.is_set():
                 print('start break')
                 break
-    queue.put('DONE')
+        queue.put('DONE')
+    print('record finished')
 
-def save(queue):
+def save(queue, end_time):
     record_data = pd.DataFrame(columns=['MIC1','MIC2','MIC3','MIC4'])
+    start = time.time()
     while True:
         chans = queue.get()
         if not chans:
             time.sleep(0.5)
+            if time.time()-start.time() > end_time:
+                break
+            continue
         if chans == 'DONE':
             break
+        print('saving')
         for i in range(len(chans[0])):
             tempt = pd.DataFrame([[chans[0][i], chans[1][i], chans[2][i], chans[3][i]],], columns=['MIC1','MIC2','MIC3','MIC4'])
-            print(tempt)
+            # print(tempt)
             record_data = pd.concat([record_data, tempt], ignore_index=True)
     time_stamp = get_time_stamp()
     output_file = 'record_'+time_stamp
     record_data.to_csv(output_file, index=False)
+    print('save finished')
 
 def get_time_stamp():
     ct = time.time()
@@ -150,3 +164,5 @@ def main():
 if __name__ == '__main__':
     # main()
     mic_main(None)
+    # record(record_queue, PLAY_TIME)
+    
