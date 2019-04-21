@@ -18,7 +18,7 @@ from scipy.fftpack import fft
 
 SAMPLE_RATE = 48000
 CHANNELS = 8
-DATA_RATE = 200
+DATA_RATE = 1
 AUDIO_NAME = 'raw_data/sig1822k_5s.wav'
 PLAY_TIME = 5 # seconds
 
