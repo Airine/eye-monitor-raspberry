@@ -12,10 +12,13 @@ from bluetooth import *
 import time
 import os
 import pygame
+import codecs
+import csv
 
 record_queue = Queue()
 
-
+FILENAME = 'test.csv'
+ENCODING = 'utf-8'
 SAMPLE_RATE = 48000
 CHANNELS = 8
 DATA_RATE = 1
@@ -25,18 +28,18 @@ PLAY_TIME = 5 # seconds
 # MicArray part
 def mic_main(client_sock):
     record_queue = Queue()
-    play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME,))
-    save_p = Process(target=save, args=(record_queue, PLAY_TIME,))
+    #play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME,))
+    #save_p = Process(target=save, args=(record_queue, PLAY_TIME,))
     record_p = Process(target=record, args=(record_queue, PLAY_TIME,))
     record_p.start()
     while True:
         if record_queue.get() == 'start':
             break
-    play_p.start()
-    save_p.start()
-    save_p.join()
+    #play_p.start()
+    #save_p.start()
+    #save_p.join()
     record_p.join()
-    play_p.join()
+    #play_p.join()
 
 def play(audio, end_time=20.0):
     pygame.mixer.init()
@@ -49,7 +52,7 @@ def play(audio, end_time=20.0):
             break
         continue
 
-def record(queue, end_time, peers):
+def record(queue, end_time):
     import signal
     # from pixel_ring import pixel_ring
 
@@ -62,25 +65,29 @@ def record(queue, end_time, peers):
     signal.signal(signal.SIGINT, signal_handler)
     start = time.time()
     print('------')
-    with MicArray(SAMPLE_RATE, CHANNELS,  CHANNELS * SAMPLE_RATE / DATA_RATE)  as mic:
+    with MicArray(SAMPLE_RATE, CHANNELS,  CHANNELS * SAMPLE_RATE)  as mic:
         print('------')
-        queue.put('start')
-        for chunk in mic.read_chunks():
-            chans = [list(), list(), list(), list()]
-            for i in range(len(chunk)):
-                index = i % CHANNELS
-                if index < 4:
-                    chans[index].append(chunk[i])
-            queue.put(chans)
-            print('recording')
-            if time.time() - start > end_time:
-                print('record break')
-                break
+        with codecs.open(FILENAME, "w", ENCODING) as f:
+            writer = csv.writer(f)
+            queue.put('start')
+            for chunk in mic.read_chunks():
+                # chans = pd.DataFrame(columns=['MIC1','MIC2','MIC3','MIC4'])
+                for i in range(len(chunk)/4):
+                    # index = i % CHANNELS
+                    row = [chunk[4*i], chunk[4*i+1], chunk[4*i+2], chunk[4*i+3]]
+                    writer.writerow(row)
+                    #if index < 4:
+                        #chans[index].append(chunk[i])
+                queue.put(chans)
+                print('recording')
+                if time.time() - start > end_time:
+                    print('record break')
+                    break
 
-            if is_quit.is_set():
-                print('start break')
-                break
-        queue.put('DONE')
+                if is_quit.is_set():
+                    print('start break')
+                    break
+            queue.put('DONE')
     print('record finished')
 
 def save(queue, end_time):
@@ -89,16 +96,14 @@ def save(queue, end_time):
     while True:
         chans = queue.get()
         if not chans:
-            time.sleep(0.5)
-            if time.time()-start.time() > end_time:
-                break
+            time.sleep(0.02)
             continue
         if chans == 'DONE':
             break
         print('saving')
         for i in range(len(chans[0])):
             tempt = pd.DataFrame([[chans[0][i], chans[1][i], chans[2][i], chans[3][i]],], columns=['MIC1','MIC2','MIC3','MIC4'])
-            # print(tempt)
+            #print(tempt)
             record_data = pd.concat([record_data, tempt], ignore_index=True)
     time_stamp = get_time_stamp()
     output_file = 'record_'+time_stamp

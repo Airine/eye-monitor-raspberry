@@ -1,7 +1,9 @@
 # import pyaudio
+import pygame
 from multiprocessing import Process, Queue
 from mic_array import MicArray
 import subprocess
+import time
 
 SAMPLE_RATE = 48000
 CHANNELS = 8
@@ -9,18 +11,10 @@ AUDIO_NAME = 'raw_data/sig1822k_5s.wav'
 PLAY_TIME = 5 # seconds
 
 def play(audio, end_time=20.0):
-    pygame.mixer.init()
-    pygame.mixer.music.load(audio)
-    pygame.mixer.music.play()
-    start = time.time()
-    while pygame.mixer.music.get_busy() == True:
-        if time.time() - start > end_time:
-            print('play break')
-            break
-        continue
+    subprocess.call(['aplay', audio])
 
 def record(file_name):
-    subprocess.call(['arecord', '-Dac108', '-f', 'S32_LE', '-r', '48000', '-c', '4', file_name])
+    subprocess.call(['arecord', '-Dac108', '-f', 'S16_LE', '-r', '48000', '-c', '4', file_name])
 
 def get_time_stamp():
     ct = time.time()
@@ -33,8 +27,8 @@ def main():
     file_name = get_time_stamp() + '-record.wav'
     play_p = Process(target=play, args=(AUDIO_NAME, PLAY_TIME,))
     record_p = Process(target=record, args=(file_name,))
-    play_p.start()
     record_p.start()
+    play_p.start()
     start = time.time()
     while time.time() - start < PLAY_TIME:
         # busy waiting.
