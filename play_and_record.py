@@ -11,10 +11,12 @@ AUDIO_NAME = 'raw_data/sig1822k_5s.wav'
 PLAY_TIME = 5 # seconds
 
 def play(audio, end_time=20.0):
-    subprocess.call(['aplay', '-d', str(end_time), audio])
+    proc = subprocess.Popen(['aplay', '-d', str(end_time), audio])
+    print(proc.pid)
 
 def record(file_name, end_time=20.0):
-    subprocess.call(['arecord', '-Dac108', '-f', 'S16_LE', '-r', '48000', '-c', '4', '-d', str(end_time), file_name])
+    proc = subprocess.call(['arecord', '-Dac108', '-f', 'S16_LE', '-r', '48000', '-c', '4', '-d', str(end_time), file_name])
+    print(proc.pid)
 
 def get_time_stamp():
     ct = time.time()
