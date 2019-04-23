@@ -4,6 +4,7 @@ import time
 import argparse
 import wave
 import contextlib
+import psutil
 
 AUDIO_NAME = 'raw_data/sig1822k_5s.wav'
 RECORD_NAME= ''
@@ -13,6 +14,7 @@ PLAY_TIME = 5 # seconds
 # TODO: adding force termination.
 def play(audio, end_time=20.0):
     proc = subprocess.Popen(['aplay', '-d', str(end_time), audio])
+    print(proc.status)
     print(proc.pid)
 
 def record(file_name, end_time=20.0):

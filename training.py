@@ -22,7 +22,7 @@ ENCODING = 'utf-8'
 SAMPLE_RATE = 48000
 CHANNELS = 8
 DATA_RATE = 1
-AUDIO_NAME = 'raw_data/sig1822k_210duo_pi.wav'
+AUDIO_NAME = 'raw_data/sig18k_5s.wav'
 PLAY_TIME = 5 # seconds
 
 # MicArray part

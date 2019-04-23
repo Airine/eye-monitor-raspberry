@@ -11,11 +11,25 @@ import matplotlib.pyplot as plt
 from multiprocessing import Process, Queue
 import os
 import time
+import pygame
 import signal
+import subprocess
 plt.switch_backend("agg")
 
+AUDIO_NAME = 'raw_data/sig22k_5s.wav'
 SAMPLE_RATE = 48000
 CHANNELS = 8
+
+def play(audio, end_time=20.0):
+    pygame.mixer.init()
+    pygame.mixer.music.load(audio)
+    pygame.mixer.music.play()
+    start = time.time()
+    while pygame.mixer.music.get_busy() == True:
+        if time.time() - start > end_time:
+            print('play break')
+            break
+        continue
 
 # Get record chunks in `time_range` seconds.
 def get_chunks(time_range=1.0):
@@ -31,7 +45,10 @@ def get_chunks(time_range=1.0):
     signal.signal(signal.SIGINT, signal_handler)
     print('------')
     chunks = list()
-    with MicArray(SAMPLE_RATE, CHANNELS, SAMPLE_RATE / CHANNELS)  as mic:
+    play_p = Process(target=play, args=(AUDIO_NAME, time_range,))
+    with MicArray(SAMPLE_RATE, CHANNELS, SAMPLE_RATE / CHANNELS *time_range)  as mic:
+        # proc = subprocess.Popen(['aplay', '-d', str(time_range), AUDIO_NAME])
+        play_p.start()
         start = time.time()
         for chunk in mic.read_chunks():
             if time.time()-start > time_range:
@@ -41,6 +58,7 @@ def get_chunks(time_range=1.0):
             if is_quit.is_set():
                 break
     print('------')
+    play_p.join()
     print('record finished')
     return chunks
 
@@ -103,7 +121,7 @@ def save_to_npy(pro_chans):
         np.save(target_file, pro_chans[i])
 
 if __name__ == '__main__':
-    chunks = get_chunks()
+    chunks = get_chunks(5)
     pro_chans = preprocess(chunks, channels=8)
     N = 48000
     T = 1.0 / 48000
